@@ -11,6 +11,7 @@ import {
   Plus,
   Leaf,
   Wallet,
+  Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -79,10 +80,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         >
           <Image src="/ecotrack-logo.webp" width={32} height={32} alt="EcoTrack" className="drop-shadow-sm" />
           <div>
-            <p className="font-bold text-foreground leading-none">EcoTrack</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              ODS 11 · 12 · 13
-            </p>
+            <p className="font-bold text-foreground text-2xl leading-none">EcoTrack</p>
           </div>
         </Link>
 
@@ -107,6 +105,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           })}
 
           {/* Extra sidebar-only links */}
+          <Link
+            href="/assistant"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mt-2",
+              pathname.startsWith("/assistant")
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-sidebar-foreground hover:bg-sidebar-accent"
+            )}
+          >
+            <Bot className="w-4 h-4" />
+            Asistente IA
+          </Link>
           <Link
             href="/gamification/wallet"
             className={cn(
@@ -135,7 +145,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ── Main Content ── */}
       <main className="flex-1 lg:ml-64 pb-24 lg:pb-8">
         {/* Mobile header */}
-        <header className="lg:hidden sticky top-0 z-10 bg-background/80 backdrop-blur border-b border-border h-14 px-4 flex items-center">
+        <header className="lg:hidden sticky top-0 z-10 bg-background/80 backdrop-blur border-b border-border h-14 px-4 flex items-center justify-between">
           <Link
             href="/dashboard"
             onClick={(e) => {
@@ -147,7 +157,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-2"
           >
             <Image src="/ecotrack-logo.webp" width={28} height={28} alt="EcoTrack" className="drop-shadow-sm" />
-            <span className="font-bold">EcoTrack</span>
+            <span className="font-bold text-2xl">EcoTrack</span>
+          </Link>
+          
+          <Link href="/assistant" className="w-9 h-9 flex items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/20">
+            <Bot className="w-5 h-5" />
           </Link>
         </header>
 
