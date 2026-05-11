@@ -119,7 +119,7 @@ export default function DashboardPage() {
         </ul>
 
         <Link
-          href="/dashboard/recycle"
+          href="/dashboard/history"
           className="mt-4 flex items-center justify-center gap-1 text-sm text-primary font-medium hover:underline"
         >
           Ver todo <ChevronRight className="w-4 h-4" />
