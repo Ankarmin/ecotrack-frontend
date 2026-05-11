@@ -19,8 +19,20 @@ export const metadata: Metadata = {
     template: "%s — EcoTrack",
   },
   description: "Monitorea tu reciclaje y mide tu impacto ecológico. ODS 11 · 12 · 13.",
-  icons: {
-    icon: "/ecotrack-logo.ico",
+  openGraph: {
+    title: "EcoTrack",
+    description: "Monitorea tu reciclaje y mide tu impacto ecológico.",
+    url: "https://ecotrack-frontend-beta.vercel.app/",
+    siteName: "EcoTrack",
+    images: [
+      {
+        url: "/ecotrack-logo.webp",
+        width: 800,
+        height: 600,
+      },
+    ],
+    locale: "es_ES",
+    type: "website",
   },
 };
 
