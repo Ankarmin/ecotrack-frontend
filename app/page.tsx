@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ScrollToTopLink } from "@/components/ScrollToTopLink";
 import Image from "next/image";
 import {
   Leaf,
@@ -149,9 +150,8 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
-          <Link 
-            href="/" 
-            className="flex items-center gap-2 group"
+          <ScrollToTopLink 
+            className="flex items-center gap-2 group cursor-pointer"
           >
             <Image
               src="/ecotrack-logo.webp"
@@ -161,14 +161,11 @@ export default function LandingPage() {
               className="rounded-xl transition-transform group-hover:scale-105"
             />
             <div>
-              <span className="font-bold text-foreground text-lg leading-none">
+              <span className="font-bold text-foreground text-2xl leading-none">
                 EcoTrack
               </span>
-              <span className="hidden sm:block text-[9px] text-muted-foreground leading-none mt-0.5">
-                ODS 11 · 12 · 13
-              </span>
             </div>
-          </Link>
+          </ScrollToTopLink>
 
           {/* Nav Links */}
           <nav className="hidden md:flex items-center gap-8">
@@ -521,23 +518,25 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
             {/* Brand column */}
             <div className="col-span-2">
-              <div className="flex items-center gap-2 mb-4">
+              <ScrollToTopLink 
+                className="flex items-center gap-2 mb-4 cursor-pointer group"
+              >
                 <Image
                   src="/ecotrack-logo.webp"
                   alt="EcoTrack Logo"
                   width={36}
                   height={36}
-                  className="rounded-xl"
+                  className="rounded-xl transition-transform group-hover:scale-105"
                 />
                 <div>
-                  <span className="font-bold text-foreground text-lg">
+                  <span className="font-bold text-foreground text-2xl group-hover:text-primary transition-colors">
                     EcoTrack
                   </span>
                 </div>
-              </div>
+              </ScrollToTopLink>
               <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
                 Monitorea tu reciclaje, mide tu impacto en CO₂ y contribuye a
-                los Objetivos de Desarrollo Sostenible 11, 12 y 13 de la ONU.
+                un mundo más sostenible.
               </p>
 
               {/* Social */}
