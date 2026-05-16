@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Wallet,
   Gift,
@@ -11,83 +11,167 @@ import {
   ShoppingBag,
   Coffee,
   Bike,
+  Loader2,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import {
+  ApiError,
+  clearAccessToken,
+  getAccessToken,
+  getWallet,
+  redeemReward,
+  type Reward,
+  type WalletResponse,
+} from "@/lib/api";
 
-const rewards = [
-  {
-    id: "1",
-    title: "15% dcto. Supermercados Wong",
-    cost: 500,
-    category: "Compras",
-    icon: ShoppingBag,
-    color: "bg-blue-500",
-    available: true,
-  },
-  {
-    id: "2",
-    title: "Café gratis en Starbucks",
-    cost: 300,
-    category: "Alimentos",
-    icon: Coffee,
-    color: "bg-amber-600",
-    available: true,
-  },
-  {
-    id: "3",
-    title: "1 mes BiciLima Premium",
-    cost: 800,
-    category: "Transporte",
-    icon: Bike,
-    color: "bg-green-600",
-    available: true,
-  },
-  {
-    id: "4",
-    title: "Bolsa reutilizable EcoTrack",
-    cost: 150,
-    category: "Merch",
-    icon: Gift,
-    color: "bg-purple-500",
-    available: true,
-  },
-  {
-    id: "5",
-    title: "Donación a ONG ambiental",
-    cost: 200,
-    category: "Impacto",
-    icon: Star,
-    color: "bg-emerald-500",
-    available: true,
-  },
-  {
-    id: "6",
-    title: "20% dcto. Plaza Vea",
-    cost: 600,
-    category: "Compras",
-    icon: ShoppingBag,
-    color: "bg-red-500",
-    available: false,
-  },
-];
+const iconMap = {
+  "shopping-bag": ShoppingBag,
+  coffee: Coffee,
+  bike: Bike,
+  gift: Gift,
+  star: Star,
+} as const;
 
 export default function WalletPage() {
-  const [balance] = useState(1_240);
+  const router = useRouter();
+  const [walletData, setWalletData] = useState<WalletResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [redeemModal, setRedeemModal] = useState<string | null>(null);
   const [redeemed, setRedeemed] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadWallet = async () => {
+      const token = getAccessToken();
+
+      if (!token) {
+        router.replace("/auth/login?next=%2Fgamification%2Fwallet");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getWallet(token);
+
+        if (!ignore) {
+          setWalletData(data);
+        }
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          clearAccessToken();
+          router.replace("/auth/login?next=%2Fgamification%2Fwallet");
+          return;
+        }
+
+        if (!ignore) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "No se pudo cargar la billetera"
+          );
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadWallet();
+
+    return () => {
+      ignore = true;
+    };
+  }, [router]);
+
+  const rewards = walletData?.rewards ?? [];
+  const balance = walletData?.wallet.balance ?? 0;
 
   const selectedReward = rewards.find((r) => r.id === redeemModal);
 
-  const handleRedeem = () => {
-    setRedeemed(true);
-    setTimeout(() => {
-      setRedeemModal(null);
-      setRedeemed(false);
-    }, 2000);
+  const handleRedeem = async () => {
+    if (!selectedReward) {
+      return;
+    }
+
+    const token = getAccessToken();
+
+    if (!token) {
+      clearAccessToken();
+      router.replace("/auth/login?next=%2Fgamification%2Fwallet");
+      return;
+    }
+
+    try {
+      setRedeeming(true);
+      setError(null);
+
+      const response = await redeemReward(token, selectedReward.id);
+
+      setWalletData((current) => {
+        if (!current) {
+          return current;
+        }
+
+        return {
+          ...current,
+          wallet: response.wallet,
+          recentRedemptions: [response.redemption, ...current.recentRedemptions].slice(
+            0,
+            10
+          ),
+        };
+      });
+
+      setRedeemed(true);
+      setTimeout(() => {
+        setRedeemModal(null);
+        setRedeemed(false);
+      }, 2000);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        clearAccessToken();
+        router.replace("/auth/login?next=%2Fgamification%2Fwallet");
+        return;
+      }
+
+      setError(
+        err instanceof Error ? err.message : "No se pudo completar el canje"
+      );
+    } finally {
+      setRedeeming(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-primary">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!walletData) {
+    return (
+      <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-destructive">
+        {error ?? "No se pudo cargar la billetera"}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
       {/* ── BalanceCard ── */}
       <div
         className="rounded-2xl p-6 text-primary-foreground relative overflow-hidden"
@@ -114,7 +198,7 @@ export default function WalletPage() {
           </div>
           <div className="mt-3 flex items-center gap-2 text-sm opacity-90">
             <TrendingUp className="w-4 h-4" />
-            <span>+180 esta semana</span>
+            <span>+{walletData.wallet.weeklyChange} esta semana</span>
           </div>
         </div>
       </div>
@@ -123,15 +207,21 @@ export default function WalletPage() {
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl bg-card border border-border p-3 text-center">
           <p className="text-xs text-muted-foreground">Canjeados</p>
-          <p className="text-lg font-bold text-foreground">3</p>
+          <p className="text-lg font-bold text-foreground">
+            {walletData.wallet.redeemedCount}
+          </p>
         </div>
         <div className="rounded-xl bg-card border border-border p-3 text-center">
           <p className="text-xs text-muted-foreground">Ganados hoy</p>
-          <p className="text-lg font-bold text-primary">+45</p>
+          <p className="text-lg font-bold text-primary">
+            +{walletData.wallet.earnedToday}
+          </p>
         </div>
         <div className="rounded-xl bg-card border border-border p-3 text-center">
           <p className="text-xs text-muted-foreground">Nivel</p>
-          <p className="text-lg font-bold text-foreground">Oro</p>
+          <p className="text-lg font-bold text-foreground">
+            {walletData.wallet.level}
+          </p>
         </div>
       </div>
 
@@ -141,8 +231,8 @@ export default function WalletPage() {
           Canjea tus puntos
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rewards.map((reward) => {
-            const Icon = reward.icon;
+          {rewards.map((reward: Reward) => {
+            const Icon = iconMap[reward.icon as keyof typeof iconMap] ?? Gift;
             const canAfford = balance >= reward.cost;
 
             return (
@@ -238,7 +328,12 @@ export default function WalletPage() {
                       selectedReward.color
                     )}
                   >
-                    <selectedReward.icon className="w-6 h-6" />
+                    {(() => {
+                      const SelectedIcon =
+                        iconMap[selectedReward.icon as keyof typeof iconMap] ?? Gift;
+
+                      return <SelectedIcon className="w-6 h-6" />;
+                    })()}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">
@@ -267,13 +362,14 @@ export default function WalletPage() {
 
                 <button
                   onClick={handleRedeem}
+                  disabled={redeeming}
                   className="w-full py-3.5 rounded-xl font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
                   style={{
                     background: "var(--gradient-primary)",
                     boxShadow: "var(--shadow-eco)",
                   }}
                 >
-                  Confirmar canje
+                  {redeeming ? "Procesando..." : "Confirmar canje"}
                 </button>
               </>
             )}
