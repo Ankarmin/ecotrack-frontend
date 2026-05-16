@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://ecotrack-frontend-beta.vercel.app";
+const metadataBase = new URL(appUrl);
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -14,6 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase,
   title: {
     default: "EcoTrack",
     template: "%s — EcoTrack",
@@ -22,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "EcoTrack",
     description: "Monitorea tu reciclaje y mide tu impacto ecológico.",
-    url: "https://ecotrack-frontend-beta.vercel.app/",
+    url: appUrl,
     siteName: "EcoTrack",
     images: [
       {
