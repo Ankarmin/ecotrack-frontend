@@ -1,9 +1,9 @@
-import { AppLayout } from "@/components/AppLayout";
+import { ProtectedAppLayout } from "@/components/ProtectedAppLayout";
 
 export default function AppGroupLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AppLayout>{children}</AppLayout>;
+  return <ProtectedAppLayout>{children}</ProtectedAppLayout>;
 }
