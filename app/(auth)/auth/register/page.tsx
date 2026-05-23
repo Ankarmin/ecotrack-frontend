@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Eye, EyeOff, Loader2, User } from "lucide-react";
+import { Mail, Eye, EyeOff, Loader2, Phone, User } from "lucide-react";
 import { registerUser, setAccessToken } from "@/lib/api";
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
+  const [firstNames, setFirstNames] = useState("");
+  const [lastNames, setLastNames] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,7 +24,13 @@ export default function RegisterPage() {
     setError(null);
 
     try {
-      const response = await registerUser({ name, email, password });
+      const response = await registerUser({
+        firstNames,
+        lastNames,
+        email,
+        phone,
+        password,
+      });
       setAccessToken(response.accessToken);
       const nextPath =
         typeof window !== "undefined"
@@ -86,16 +94,30 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name */}
+          {/* First names */}
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
-              id="register-name"
+              id="register-first-names"
               type="text"
               required
-              placeholder="Nombre completo"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Nombres"
+              value={firstNames}
+              onChange={(e) => setFirstNames(e.target.value)}
+              className="w-full rounded-xl border border-input bg-card pl-11 pr-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+            />
+          </div>
+
+          {/* Last names */}
+          <div className="relative">
+            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              id="register-last-names"
+              type="text"
+              required
+              placeholder="Apellidos"
+              value={lastNames}
+              onChange={(e) => setLastNames(e.target.value)}
               className="w-full rounded-xl border border-input bg-card pl-11 pr-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
             />
           </div>
@@ -110,6 +132,20 @@ export default function RegisterPage() {
               placeholder="Correo electrónico"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-xl border border-input bg-card pl-11 pr-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+            />
+          </div>
+
+          {/* Phone */}
+          <div className="relative">
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              id="register-phone"
+              type="tel"
+              required
+              placeholder="Teléfono"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               className="w-full rounded-xl border border-input bg-card pl-11 pr-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
             />
           </div>
