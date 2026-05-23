@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Recycle,
@@ -9,24 +10,87 @@ import {
   Plus,
   ChevronRight,
   Flame,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const stats = [
-  { label: "CO₂ ahorrado", value: "42.6 kg", icon: Cloud, hint: "este mes", color: "text-emerald-600" },
-  { label: "Árboles equiv.", value: "3.2", icon: TreePine, hint: "plantados", color: "text-green-600" },
-  { label: "Reciclado", value: "18.4 kg", icon: Recycle, hint: "este mes", color: "text-teal-600" },
-  { label: "Racha", value: "12 días", icon: Flame, hint: "consecutivos", color: "text-orange-500" },
-];
-
-const recent = [
-  { material: "Plástico PET", weight: "1.2 kg", co2: "2.4 kg", date: "Hoy", emoji: "🥤" },
-  { material: "Cartón", weight: "3.0 kg", co2: "2.7 kg", date: "Ayer", emoji: "📦" },
-  { material: "Vidrio", weight: "2.5 kg", co2: "0.8 kg", date: "Hace 2 días", emoji: "🍾" },
-  { material: "Aluminio", weight: "0.4 kg", co2: "3.6 kg", date: "Hace 3 días", emoji: "🥫" },
-];
+import { ApiError, clearAccessToken, getAccessToken, getMyRecyclingRecords, getProfile, type RecyclingRecord, type UserProfileResponse } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [profile, setProfile] = useState<UserProfileResponse | null>(null);
+  const [records, setRecords] = useState<RecyclingRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadData = async () => {
+      const token = getAccessToken();
+
+      if (!token) {
+        router.replace("/auth/login?next=%2Fdashboard");
+        return;
+      }
+
+      try {
+        const [profileData, recordsData] = await Promise.all([
+          getProfile(token),
+          getMyRecyclingRecords(token),
+        ]);
+
+        if (!ignore) {
+          setProfile(profileData);
+          setRecords(recordsData);
+        }
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          clearAccessToken();
+          router.replace("/auth/login?next=%2Fdashboard");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      ignore = true;
+    };
+  }, [router]);
+
+  const stats = useMemo(() => {
+    const validatedRecords = records.filter((record) => record.status === "Validado");
+    const totalCo2 = validatedRecords.reduce((sum, record) => sum + record.savedCo2, 0);
+    const totalWeight = validatedRecords.reduce((sum, record) => sum + record.weightKg, 0);
+    const totalDays = new Set(records.map((record) => record.createdAt.slice(0, 10))).size;
+
+    return [
+      { label: "CO2 ahorrado", value: `${totalCo2.toFixed(1)} kg`, icon: Cloud, hint: "validado", color: "text-emerald-600" },
+      { label: "Arboles equiv.", value: `${(totalCo2 / 13.2).toFixed(1)}`, icon: TreePine, hint: "estimados", color: "text-green-600" },
+      { label: "Reciclado", value: `${totalWeight.toFixed(1)} kg`, icon: Recycle, hint: "validado", color: "text-teal-600" },
+      { label: "Registros", value: `${totalDays}`, icon: Flame, hint: "dias con actividad", color: "text-orange-500" },
+    ];
+  }, [records]);
+
+  const recent = records.slice(0, 4);
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-primary">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  const firstName = profile?.user.firstNames ?? "Eco";
+  const totalCo2 = records
+    .filter((record) => record.status === "Validado")
+    .reduce((sum, record) => sum + record.savedCo2, 0);
+
   return (
     <div className="space-y-6 relative">
       {/* ── Hero Banner (ImpactWidget) ── */}
@@ -44,18 +108,18 @@ export default function DashboardPage() {
         </div>
 
         <div className="relative z-10">
-          <p className="text-sm opacity-90">Hola, María 👋</p>
+          <p className="text-sm opacity-90">Hola, {firstName} 👋</p>
           <h1 className="text-2xl sm:text-3xl font-bold mt-1">
             Tu impacto este mes
           </h1>
           <div className="mt-4 flex items-baseline gap-2">
             <span className="text-4xl sm:text-5xl font-bold tracking-tight">
-              42.6
+              {totalCo2.toFixed(1)}
             </span>
-            <span className="text-lg opacity-90">kg CO₂ ahorrado</span>
+            <span className="text-lg opacity-90">kg CO2 ahorrado</span>
           </div>
           <p className="mt-2 text-sm opacity-90">
-            Equivalente a 3.2 árboles plantados 🌳
+            Equivalente a {(totalCo2 / 13.2).toFixed(1)} arboles estimados 🌳
           </p>
 
           <div className="mt-4 flex items-center gap-2">
@@ -98,21 +162,21 @@ export default function DashboardPage() {
           <span className="text-xs text-muted-foreground">Últimos 7 días</span>
         </div>
         <ul className="divide-y divide-border">
-          {recent.map((r, i) => (
-            <li key={i} className="py-3 flex items-center gap-3">
+          {recent.map((record) => (
+            <li key={record.id} className="py-3 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-lg">
-                {r.emoji}
+                ♻️
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">
-                  {r.material}
+                  {record.material?.name ?? "Material"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {r.weight} · {r.date}
+                  {record.weightKg} kg · {new Date(record.createdAt).toLocaleDateString()}
                 </p>
               </div>
               <span className="text-sm font-semibold text-primary">
-                −{r.co2} CO₂
+                -{record.savedCo2} kg CO2
               </span>
             </li>
           ))}
