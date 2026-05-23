@@ -11,34 +11,17 @@ import {
   Download,
 } from "lucide-react";
 
-const materials: Record<string, { label: string; emoji: string }> = {
-  plastic: { label: "Plástico", emoji: "🥤" },
-  paper: { label: "Papel/Cartón", emoji: "📦" },
-  glass: { label: "Vidrio", emoji: "🍾" },
-  metal: { label: "Aluminio", emoji: "🥫" },
-  organic: { label: "Orgánico", emoji: "🍎" },
-  ewaste: { label: "Electrónico", emoji: "🔌" },
-};
-
-const locationData: Record<string, { name: string; address: string; hours: string }> = {
-  "1": { name: "EcoTrack Centro", address: "Av. Larco 345, Miraflores", hours: "Lun-Sáb 8:00–18:00" },
-  "2": { name: "EcoTrack San Isidro", address: "Calle Las Begonias 120", hours: "Lun-Vie 9:00–17:00" },
-  "3": { name: "EcoTrack Surco", address: "Av. Primavera 890", hours: "Lun-Dom 7:00–19:00" },
-};
-
 function QRContent() {
   const params = useSearchParams();
   const router = useRouter();
 
-  const materialId = params.get("material") || "plastic";
+  const recordId = params.get("recordId") || "";
+  const materialName = params.get("material") || "Material";
   const weight = params.get("weight") || "1.0";
   const co2 = params.get("co2") || "2.00";
-  const locationId = params.get("location") || "1";
-
-  const mat = materials[materialId] || materials.plastic;
-  const loc = locationData[locationId] || locationData["1"];
-
-  const qrCode = `ECO-${Date.now().toString(36).toUpperCase()}-${materialId.toUpperCase().slice(0, 3)}`;
+  const locationName = params.get("location") || "Centro de reciclaje";
+  const qrCode = params.get("qr") || "QR-NO-DISPONIBLE";
+  const status = params.get("status") || "Pendiente";
 
   return (
     <div className="space-y-6 lg:max-w-md lg:mx-auto">
@@ -108,7 +91,7 @@ function QRContent() {
         <div className="flex items-center justify-between py-2 border-b border-border">
           <span className="text-sm text-muted-foreground">Material</span>
           <span className="text-sm font-medium text-foreground">
-            {mat.emoji} {mat.label}
+            ♻️ {materialName}
           </span>
         </div>
         <div className="flex items-center justify-between py-2 border-b border-border">
@@ -121,6 +104,16 @@ function QRContent() {
           <span className="text-sm text-muted-foreground">CO₂ ahorrado</span>
           <span className="text-sm font-bold text-primary">{co2} kg</span>
         </div>
+        <div className="flex items-center justify-between py-2 border-t border-border">
+          <span className="text-sm text-muted-foreground">Estado</span>
+          <span className="text-sm font-medium text-foreground">{status}</span>
+        </div>
+        {recordId && (
+          <div className="flex items-center justify-between py-2 border-t border-border">
+            <span className="text-sm text-muted-foreground">Registro</span>
+            <span className="text-xs font-mono text-foreground">{recordId}</span>
+          </div>
+        )}
       </div>
 
       {/* LocalInfoCard */}
@@ -130,12 +123,9 @@ function QRContent() {
           Centro de acopio
         </h2>
         <div>
-          <p className="font-semibold text-foreground">{loc.name}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {loc.address}
-          </p>
+          <p className="font-semibold text-foreground">{locationName}</p>
           <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-            <Clock className="w-3 h-3" /> {loc.hours}
+            <Clock className="w-3 h-3" /> Presenta este QR al validar tu entrega
           </p>
         </div>
       </div>
