@@ -1,62 +1,154 @@
 export const ACCESS_TOKEN_KEY = "ecotrack.access-token";
 
-const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "https://ecotrack-backend-production-2db4.up.railway.app"
-).replace(/\/$/, "");
+const API_TARGET = process.env.NEXT_PUBLIC_API_TARGET ?? "docker";
+
+const API_BASE_URL = resolveApiBaseUrl().replace(/\/$/, "");
+
+function resolveApiBaseUrl() {
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+
+  if (API_TARGET === "railway") {
+    return (
+      process.env.NEXT_PUBLIC_API_BASE_URL_RAILWAY ??
+      "https://ecotrack-backend-production-2db4.up.railway.app"
+    );
+  }
+
+  return process.env.NEXT_PUBLIC_API_BASE_URL_DOCKER ?? "http://localhost:3001";
+}
 
 export type AuthResponse = {
   accessToken: string;
   user: {
     id: string;
+    firstNames: string;
+    lastNames: string;
     name: string;
     email: string;
+    phone: string;
+    role: string;
     createdAt: string;
   };
   wallet: WalletSummary;
 };
 
+export type UserProfileResponse = {
+  user: {
+    id: string;
+    firstNames: string;
+    lastNames: string;
+    email: string;
+    phone: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  wallet: {
+    walletId: string;
+    availablePoints: number;
+    totalPoints: number;
+  } | null;
+};
+
 export type WalletSummary = {
+  walletId?: string;
+  availablePoints?: number;
+  totalPoints?: number;
   balance: number;
-  earnedToday: number;
-  weeklyChange: number;
   redeemedCount: number;
-  level: string;
   updatedAt?: string;
 };
 
-export type Reward = {
+export type Coupon = {
   id: string;
   title: string;
-  cost: number;
-  category: string;
-  icon: string;
-  color: string;
-  available: boolean;
+  description?: string | null;
+  requiredPoints: number;
+  stock: number;
+  validityDays: number;
+  isActive: boolean;
 };
 
 export type Redemption = {
   id: string;
-  rewardId: string;
+  couponId: string;
   title: string;
-  cost: number;
-  category: string;
-  icon: string;
-  color: string;
-  createdAt: string;
+  description?: string | null;
+  usedPoints: number;
+  redemptionCode: string;
+  status: string;
+  redeemedAt: string;
+  expiresAt: string;
 };
 
 export type WalletResponse = {
   wallet: WalletSummary;
-  rewards: Reward[];
+  coupons: Coupon[];
   recentRedemptions: Redemption[];
 };
 
-export type RedeemRewardResponse = {
+export type Material = {
+  id: string;
+  name: string;
+  co2PerKg: number;
+  pointsPerKg: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type RecyclingCenter = {
+  id: string;
+  name: string;
+  address: string;
+  district: string | null;
+  isActive: boolean;
+  schedules: Array<{
+    id: string;
+    weekday: string;
+    attends: boolean;
+    openingTime: string | null;
+    closingTime: string | null;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type RecyclingRecord = {
+  id: string;
+  userId: string;
+  materialId: string;
+  recyclingCenterId: string;
+  weightKg: number;
+  savedCo2: number;
+  earnedPoints: number;
+  qrCode: string;
+  status: string;
+  createdAt: string;
+  material: {
+    id: string;
+    name: string;
+  } | null;
+  recyclingCenter: {
+    id: string;
+    name: string;
+  } | null;
+  validation: {
+    id: string;
+    validatorUserId: string;
+    validatedAt: string;
+  } | null;
+};
+
+export type RedeemCouponResponse = {
   message: string;
   wallet: WalletSummary;
   redemption: Redemption;
 };
+
+export type CreateRecyclingRecordResponse = RecyclingRecord;
 
 export class ApiError extends Error {
   status: number;
@@ -148,8 +240,10 @@ export function clearAccessToken() {
 }
 
 export function registerUser(payload: {
-  name: string;
+  firstNames: string;
+  lastNames: string;
   email: string;
+  phone: string;
   password: string;
 }) {
   return request<AuthResponse>("/auth/register", {
@@ -165,6 +259,48 @@ export function loginUser(payload: { email: string; password: string }) {
   });
 }
 
+export function getProfile(token: string) {
+  return request<UserProfileResponse>("/users/me", {
+    method: "GET",
+    token,
+  });
+}
+
+export function getMaterials() {
+  return request<Material[]>("/materials", {
+    method: "GET",
+  });
+}
+
+export function getRecyclingCenters() {
+  return request<RecyclingCenter[]>("/recycling-centers", {
+    method: "GET",
+  });
+}
+
+export function createRecyclingRecord(
+  token: string,
+  payload: {
+    materialId: string;
+    recyclingCenterId: string;
+    weightKg: number;
+    qrCode: string;
+  }
+) {
+  return request<CreateRecyclingRecordResponse>("/recycling-records", {
+    method: "POST",
+    token,
+    body: payload,
+  });
+}
+
+export function getMyRecyclingRecords(token: string) {
+  return request<RecyclingRecord[]>("/recycling-records/me", {
+    method: "GET",
+    token,
+  });
+}
+
 export function getWallet(token: string) {
   return request<WalletResponse>("/wallet", {
     method: "GET",
@@ -172,10 +308,10 @@ export function getWallet(token: string) {
   });
 }
 
-export function redeemReward(token: string, rewardId: string) {
-  return request<RedeemRewardResponse>("/wallet/redeem", {
+export function redeemCoupon(token: string, couponId: string) {
+  return request<RedeemCouponResponse>("/wallet/redeem", {
     method: "POST",
     token,
-    body: { rewardId },
+    body: { couponId },
   });
 }
