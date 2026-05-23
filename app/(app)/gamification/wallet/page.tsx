@@ -20,18 +20,10 @@ import {
   clearAccessToken,
   getAccessToken,
   getWallet,
-  redeemReward,
-  type Reward,
+  redeemCoupon,
+  type Coupon,
   type WalletResponse,
 } from "@/lib/api";
-
-const iconMap = {
-  "shopping-bag": ShoppingBag,
-  coffee: Coffee,
-  bike: Bike,
-  gift: Gift,
-  star: Star,
-} as const;
 
 export default function WalletPage() {
   const router = useRouter();
@@ -89,13 +81,13 @@ export default function WalletPage() {
     };
   }, [router]);
 
-  const rewards = walletData?.rewards ?? [];
+  const coupons = walletData?.coupons ?? [];
   const balance = walletData?.wallet.balance ?? 0;
 
-  const selectedReward = rewards.find((r) => r.id === redeemModal);
+  const selectedCoupon = coupons.find((coupon) => coupon.id === redeemModal);
 
   const handleRedeem = async () => {
-    if (!selectedReward) {
+    if (!selectedCoupon) {
       return;
     }
 
@@ -111,7 +103,7 @@ export default function WalletPage() {
       setRedeeming(true);
       setError(null);
 
-      const response = await redeemReward(token, selectedReward.id);
+      const response = await redeemCoupon(token, selectedCoupon.id);
 
       setWalletData((current) => {
         if (!current) {
@@ -198,81 +190,78 @@ export default function WalletPage() {
           </div>
           <div className="mt-3 flex items-center gap-2 text-sm opacity-90">
             <TrendingUp className="w-4 h-4" />
-            <span>+{walletData.wallet.weeklyChange} esta semana</span>
+            <span>{walletData.wallet.totalPoints ?? balance} puntos acumulados</span>
           </div>
         </div>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl bg-card border border-border p-3 text-center">
-          <p className="text-xs text-muted-foreground">Canjeados</p>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl bg-card border border-border p-3 text-center">
+            <p className="text-xs text-muted-foreground">Canjeados</p>
           <p className="text-lg font-bold text-foreground">
             {walletData.wallet.redeemedCount}
           </p>
         </div>
-        <div className="rounded-xl bg-card border border-border p-3 text-center">
-          <p className="text-xs text-muted-foreground">Ganados hoy</p>
-          <p className="text-lg font-bold text-primary">
-            +{walletData.wallet.earnedToday}
-          </p>
+          <div className="rounded-xl bg-card border border-border p-3 text-center">
+            <p className="text-xs text-muted-foreground">Disponibles</p>
+            <p className="text-lg font-bold text-primary">
+              {walletData.wallet.availablePoints ?? balance}
+            </p>
+          </div>
+          <div className="rounded-xl bg-card border border-border p-3 text-center">
+            <p className="text-xs text-muted-foreground">Acumulados</p>
+            <p className="text-lg font-bold text-foreground">
+              {walletData.wallet.totalPoints ?? balance}
+            </p>
+          </div>
         </div>
-        <div className="rounded-xl bg-card border border-border p-3 text-center">
-          <p className="text-xs text-muted-foreground">Nivel</p>
-          <p className="text-lg font-bold text-foreground">
-            {walletData.wallet.level}
-          </p>
-        </div>
-      </div>
 
-      {/* ── RewardGrid ── */}
+      {/* ── CouponGrid ── */}
       <div>
         <h2 className="text-lg font-bold text-foreground mb-4">
           Canjea tus puntos
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rewards.map((reward: Reward) => {
-            const Icon = iconMap[reward.icon as keyof typeof iconMap] ?? Gift;
-            const canAfford = balance >= reward.cost;
+          {coupons.map((coupon: Coupon) => {
+            const canAfford = balance >= coupon.requiredPoints;
+            const available = coupon.isActive && coupon.stock > 0;
 
             return (
               <button
-                key={reward.id}
-                disabled={!reward.available || !canAfford}
-                onClick={() => setRedeemModal(reward.id)}
+                key={coupon.id}
+                disabled={!available || !canAfford}
+                onClick={() => setRedeemModal(coupon.id)}
                 className={cn(
                   "rounded-2xl bg-card border border-border p-5 text-left transition-all group",
-                  reward.available && canAfford
+                  available && canAfford
                     ? "hover:shadow-md hover:border-primary/30"
                     : "opacity-60 cursor-not-allowed"
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0",
-                      reward.color
-                    )}
-                  >
-                    <Icon className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 bg-emerald-600">
+                    <Gift className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground leading-tight">
-                      {reward.title}
+                      {coupon.title}
                     </p>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      {reward.category}
-                    </p>
+                    {coupon.description && (
+                      <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">
+                        {coupon.description}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
                   <span className="text-sm font-bold text-primary">
-                    {reward.cost} pts
+                    {coupon.requiredPoints} pts
                   </span>
-                  {reward.available && canAfford && (
+                  {available && canAfford && (
                     <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   )}
-                  {!reward.available && (
+                  {!available && (
                     <span className="text-[10px] text-muted-foreground">
                       Agotado
                     </span>
@@ -285,7 +274,7 @@ export default function WalletPage() {
       </div>
 
       {/* ── RedeemModal ── */}
-      {redeemModal && selectedReward && (
+      {redeemModal && selectedCoupon && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           onClick={() => !redeemed && setRedeemModal(null)}
@@ -322,28 +311,24 @@ export default function WalletPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "w-12 h-12 rounded-xl flex items-center justify-center text-white",
-                      selectedReward.color
-                    )}
-                  >
-                    {(() => {
-                      const SelectedIcon =
-                        iconMap[selectedReward.icon as keyof typeof iconMap] ?? Gift;
-
-                      return <SelectedIcon className="w-6 h-6" />;
-                    })()}
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white bg-emerald-600">
+                    <Gift className="w-6 h-6" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">
-                      {selectedReward.title}
+                      {selectedCoupon.title}
                     </p>
                     <p className="text-sm text-primary font-bold">
-                      {selectedReward.cost} EcoPuntos
+                      {selectedCoupon.requiredPoints} EcoPuntos
                     </p>
                   </div>
                 </div>
+
+                {selectedCoupon.description && (
+                  <p className="text-sm text-muted-foreground">
+                    {selectedCoupon.description}
+                  </p>
+                )}
 
                 <div className="rounded-xl bg-secondary/50 p-3 text-sm">
                   <div className="flex justify-between">
@@ -355,7 +340,13 @@ export default function WalletPage() {
                   <div className="flex justify-between mt-1">
                     <span className="text-muted-foreground">Después del canje</span>
                     <span className="font-medium text-foreground">
-                      {(balance - selectedReward.cost).toLocaleString()} pts
+                      {(balance - selectedCoupon.requiredPoints).toLocaleString()} pts
+                    </span>
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-muted-foreground">Validez</span>
+                    <span className="font-medium text-foreground">
+                      {selectedCoupon.validityDays} días
                     </span>
                   </div>
                 </div>
