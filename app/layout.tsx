@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://ecotrack-frontend-beta.vercel.app";
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 const metadataBase = new URL(appUrl);
 
 const geistSans = Geist({
