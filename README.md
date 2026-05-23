@@ -1,36 +1,209 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EcoTrack Frontend
 
-## Getting Started
+Frontend principal de EcoTrack construido con `Next.js`.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- pnpm 9
+- Next.js 16
+- React 19
+
+## Estructura
+
+```text
+.
+|- app/
+|- components/
+|- lib/
+|- public/
+|- .env.local
+|- .env.example
+|- .env.docker.example
+|- .env.railway.example
+|- package.json
+\- README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Regla operativa
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Todos los comandos del proyecto deben ejecutarse desde la raiz del repositorio.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Requisitos
 
-## Learn More
+- Node.js `>= 18`
+- pnpm `9.x`
+- El backend de `ecotrack-backend` levantado si vas a probar integracion real
 
-To learn more about Next.js, take a look at the following resources:
+## Instalacion
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Variables de entorno
 
-## Deploy on Vercel
+Archivo plantilla:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+.env.example
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Archivo local esperado:
+
+```bash
+.env.local
+```
+
+Variables principales:
+
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_API_TARGET`
+- `NEXT_PUBLIC_API_BASE_URL_DOCKER`
+- `NEXT_PUBLIC_API_BASE_URL_RAILWAY`
+
+Variable opcional de override directo:
+
+- `NEXT_PUBLIC_API_BASE_URL`
+
+## Configuracion actual
+
+Configuracion local actual de `.env.local`:
+
+```bash
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_API_TARGET=railway
+NEXT_PUBLIC_API_BASE_URL_DOCKER=http://localhost:3001
+NEXT_PUBLIC_API_BASE_URL_RAILWAY=https://ecotrack-backend-production-2db4.up.railway.app
+```
+
+## Formas de uso
+
+### Opcion 1: Frontend local + backend Docker
+
+Este es el flujo principal actual de trabajo.
+
+En `.env.local`:
+
+```bash
+NEXT_PUBLIC_API_TARGET=docker
+```
+
+Levantar backend y base de datos en `C:\Proyectos\ecotrack-backend`:
+
+```bash
+pnpm run docker:up
+```
+
+Levantar frontend en `C:\Proyectos\ecotrack-frontend`:
+
+```bash
+pnpm run dev
+```
+
+URLs esperadas:
+
+```text
+Frontend: http://localhost:3000
+Backend: http://localhost:3001
+```
+
+### Opcion 2: Frontend local + backend Railway
+
+En `.env.local`:
+
+```bash
+NEXT_PUBLIC_API_TARGET=railway
+```
+
+Luego levanta solo el frontend:
+
+```bash
+pnpm run dev
+```
+
+En este modo, las peticiones salen a la URL definida en `NEXT_PUBLIC_API_BASE_URL_RAILWAY`.
+
+## Cambio rapido de target
+
+Para cambiar entre Docker y Railway, solo cambia esta variable en `.env.local`:
+
+```bash
+NEXT_PUBLIC_API_TARGET=docker
+```
+
+o:
+
+```bash
+NEXT_PUBLIC_API_TARGET=railway
+```
+
+Manteniendo estas dos URLs definidas una sola vez:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL_DOCKER=http://localhost:3001
+NEXT_PUBLIC_API_BASE_URL_RAILWAY=https://ecotrack-backend-production-2db4.up.railway.app
+```
+
+Si defines `NEXT_PUBLIC_API_BASE_URL`, esa variable tiene prioridad sobre el target.
+
+## Scripts
+
+```bash
+pnpm run dev
+pnpm run build
+pnpm run check-types
+pnpm run start
+pnpm run lint
+```
+
+## Integracion con backend
+
+### Flujo con backend Docker
+
+1. En `ecotrack-backend`:
+
+```bash
+pnpm run docker:up
+```
+
+2. En `ecotrack-frontend`:
+
+```bash
+pnpm run dev
+```
+
+3. Abrir:
+
+```text
+Frontend: http://localhost:3000
+Backend: http://localhost:3001
+```
+
+### Flujo con backend Railway
+
+1. Dejar `NEXT_PUBLIC_API_TARGET=railway` en `.env.local`.
+
+2. Levantar el frontend:
+
+```bash
+pnpm run dev
+```
+
+3. Abrir:
+
+```text
+Frontend: http://localhost:3000
+Backend: URL publica de Railway
+```
+
+## Produccion
+
+Para despliegues, configura explicitamente:
+
+```bash
+NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_API_TARGET=railway
+NEXT_PUBLIC_API_BASE_URL_DOCKER=
+NEXT_PUBLIC_API_BASE_URL_RAILWAY=
+```
