@@ -2,28 +2,42 @@
 
 import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { AppLayout } from "@/components/AppLayout";
-import { getAccessToken } from "@/lib/api";
+import { ACCESS_TOKEN_KEY, getAccessToken } from "@/lib/api";
 
 export function ProtectedAppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const subscribe = useCallback((onStoreChange: () => void) => {
+    if (typeof window === "undefined") {
+      return () => {};
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === ACCESS_TOKEN_KEY) {
+        onStoreChange();
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
+  const token = useSyncExternalStore(subscribe, getAccessToken, () => null);
 
   useEffect(() => {
-    const token = getAccessToken();
-
-    if (!token) {
-      const next = pathname ? `?next=${encodeURIComponent(pathname)}` : "";
-      router.replace(`/auth/login${next}`);
+    if (token) {
       return;
     }
 
-    setIsAuthorized(true);
-  }, [pathname, router]);
+    const next = pathname ? `?next=${encodeURIComponent(pathname)}` : "";
+    router.replace(`/auth/login${next}`);
+  }, [pathname, router, token]);
 
-  if (!isAuthorized) {
+  if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-primary">
         <Loader2 className="w-8 h-8 animate-spin" />

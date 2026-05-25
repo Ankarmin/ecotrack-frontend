@@ -11,6 +11,28 @@ import {
   Download,
 } from "lucide-react";
 
+function getQrSeedHash(seed: string) {
+  return Array.from(seed).reduce(
+    (hash, char, index) => hash + char.charCodeAt(0) * (index + 1),
+    0,
+  );
+}
+
+function isFilledQrCell(index: number, hash: number) {
+  const row = Math.floor(index / 8);
+  const column = index % 8;
+  const isFinderPattern =
+    (column < 3 && row < 3) ||
+    (column > 4 && row < 3) ||
+    (column < 3 && row > 4);
+
+  if (isFinderPattern) {
+    return true;
+  }
+
+  return (hash + row * 17 + column * 31 + index * 7) % 2 === 0;
+}
+
 function QRContent() {
   const params = useSearchParams();
   const router = useRouter();
@@ -22,6 +44,9 @@ function QRContent() {
   const locationName = params.get("location") || "Centro de reciclaje";
   const qrCode = params.get("qr") || "QR-NO-DISPONIBLE";
   const status = params.get("status") || "Pendiente";
+  const qrSeedHash = getQrSeedHash(
+    `${recordId}:${materialName}:${weight}:${co2}:${locationName}:${qrCode}:${status}`,
+  );
 
   return (
     <div className="space-y-6 lg:max-w-md lg:mx-auto">
@@ -50,13 +75,9 @@ function QRContent() {
                   key={i}
                   className="rounded-[2px]"
                   style={{
-                    backgroundColor:
-                      (i % 7 < 3 && Math.floor(i / 8) < 3) ||
-                      (i % 8 > 4 && Math.floor(i / 8) < 3) ||
-                      (i % 7 < 3 && Math.floor(i / 8) > 4) ||
-                      Math.random() > 0.5
-                        ? "#1a1a1a"
-                        : "transparent",
+                    backgroundColor: isFilledQrCell(i, qrSeedHash)
+                      ? "#1a1a1a"
+                      : "transparent",
                   }}
                 />
               ))}
