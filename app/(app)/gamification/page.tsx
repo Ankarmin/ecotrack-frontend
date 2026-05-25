@@ -18,11 +18,6 @@ const users = [
 ];
 
 const podiumIcon = [Crown, Medal, Award];
-const podiumColors = [
-  "from-amber-400 to-yellow-500",
-  "from-slate-300 to-slate-400",
-  "from-orange-400 to-amber-500",
-];
 
 const myUser = users.find((u) => u.me)!;
 

@@ -9,7 +9,6 @@ import {
   Users,
   User,
   Plus,
-  Leaf,
   Wallet,
   Bot,
 } from "lucide-react";

@@ -8,9 +8,6 @@ import {
   TrendingUp,
   ChevronRight,
   X,
-  ShoppingBag,
-  Coffee,
-  Bike,
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";

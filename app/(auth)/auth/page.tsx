@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Leaf, Recycle, Trophy, Globe, ChevronRight } from "lucide-react";
+import { Recycle, Trophy, Globe, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const slides = [

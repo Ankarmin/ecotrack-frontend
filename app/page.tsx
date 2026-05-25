@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ScrollToTopLink } from "@/components/ScrollToTopLink";
 import Image from "next/image";
 import {
-  Leaf,
   Recycle,
   Trophy,
   Globe,

@@ -6,7 +6,6 @@ import {
   Recycle,
   TreePine,
   Cloud,
-  TrendingUp,
   Plus,
   ChevronRight,
   Flame,

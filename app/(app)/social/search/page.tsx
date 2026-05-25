@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Search, ChevronLeft, UserPlus, UserCheck, Cloud, TreePine } from "lucide-react";
+import { Search, ChevronLeft, UserPlus, UserCheck, Cloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type UserResult = {

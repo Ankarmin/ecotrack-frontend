@@ -6,9 +6,6 @@ import {
   Heart,
   MessageCircle,
   Share2,
-  Recycle,
-  Trophy,
-  Flame,
   Search,
   UserPlus,
 } from "lucide-react";
