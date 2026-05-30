@@ -16,6 +16,8 @@ import {
   ApiError,
   clearAccessToken,
   getAccessToken,
+  getAccessTokenPayload,
+  isClientRole,
   getWallet,
   redeemCoupon,
   type Coupon,
@@ -24,6 +26,7 @@ import {
 
 export default function WalletPage() {
   const router = useRouter();
+  const tokenPayload = getAccessTokenPayload();
   const [walletData, setWalletData] = useState<WalletResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +45,11 @@ export default function WalletPage() {
         return;
       }
 
+      if (!isClientRole(tokenPayload?.role)) {
+        router.replace("/dashboard");
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
@@ -54,6 +62,11 @@ export default function WalletPage() {
         if (err instanceof ApiError && err.status === 401) {
           clearAccessToken();
           router.replace("/auth/login?next=%2Fgamification%2Fwallet");
+          return;
+        }
+
+        if (err instanceof ApiError && err.status === 403) {
+          router.replace("/dashboard");
           return;
         }
 
@@ -76,7 +89,7 @@ export default function WalletPage() {
     return () => {
       ignore = true;
     };
-  }, [router]);
+  }, [router, tokenPayload?.role]);
 
   const coupons = walletData?.coupons ?? [];
   const balance = walletData?.wallet.balance ?? 0;
@@ -126,6 +139,11 @@ export default function WalletPage() {
       if (err instanceof ApiError && err.status === 401) {
         clearAccessToken();
         router.replace("/auth/login?next=%2Fgamification%2Fwallet");
+        return;
+      }
+
+      if (err instanceof ApiError && err.status === 403) {
+        router.replace("/dashboard");
         return;
       }
 
