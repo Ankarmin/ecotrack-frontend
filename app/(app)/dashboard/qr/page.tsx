@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   QrCode,
   MapPin,
@@ -10,6 +11,7 @@ import {
   Check,
   Download,
 } from "lucide-react";
+import QRCode from "qrcode";
 
 function getQrSeedHash(seed: string) {
   return Array.from(seed).reduce(
@@ -36,6 +38,7 @@ function isFilledQrCell(index: number, hash: number) {
 function QRContent() {
   const params = useSearchParams();
   const router = useRouter();
+  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
 
   const recordId = params.get("recordId") || "";
   const materialName = params.get("material") || "Material";
@@ -44,9 +47,53 @@ function QRContent() {
   const locationName = params.get("location") || "Centro de reciclaje";
   const qrCode = params.get("qr") || "QR-NO-DISPONIBLE";
   const status = params.get("status") || "Pendiente";
+
+  useEffect(() => {
+    let ignore = false;
+
+    const buildQrImage = async () => {
+      try {
+        const dataUrl = await QRCode.toDataURL(qrCode, {
+          errorCorrectionLevel: "M",
+          margin: 1,
+          width: 448,
+          color: {
+            dark: "#111827",
+            light: "#FFFFFF",
+          },
+        });
+
+        if (!ignore) {
+          setQrImageUrl(dataUrl);
+        }
+      } catch {
+        if (!ignore) {
+          setQrImageUrl(null);
+        }
+      }
+    };
+
+    void buildQrImage();
+
+    return () => {
+      ignore = true;
+    };
+  }, [qrCode]);
+
   const qrSeedHash = getQrSeedHash(
     `${recordId}:${materialName}:${weight}:${co2}:${locationName}:${qrCode}:${status}`,
   );
+
+  const downloadQr = () => {
+    if (!qrImageUrl || typeof document === "undefined") {
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = qrImageUrl;
+    link.download = `${qrCode}.png`;
+    link.click();
+  };
 
   return (
     <div className="space-y-6 lg:max-w-md lg:mx-auto">
@@ -67,37 +114,51 @@ function QRContent() {
       <div className="rounded-2xl bg-card border border-border p-6 flex flex-col items-center gap-4">
         {/* QR placeholder — a large visual */}
         <div className="w-56 h-56 rounded-2xl bg-white p-4 flex items-center justify-center shadow-inner border border-border">
-          {/* Generate a visual QR-like pattern */}
-          <div className="w-full h-full relative">
-            <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 gap-0.5">
-              {Array.from({ length: 64 }).map((_, i) => (
+          {qrImageUrl ? (
+            <Image
+              src={qrImageUrl}
+              alt={`QR ${qrCode}`}
+              width={224}
+              height={224}
+              unoptimized
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <div className="w-full h-full relative">
+              <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 gap-0.5">
+                {Array.from({ length: 64 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-[2px]"
+                    style={{
+                      backgroundColor: isFilledQrCell(i, qrSeedHash)
+                        ? "#1a1a1a"
+                        : "transparent",
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
                 <div
-                  key={i}
-                  className="rounded-[2px]"
-                  style={{
-                    backgroundColor: isFilledQrCell(i, qrSeedHash)
-                      ? "#1a1a1a"
-                      : "transparent",
-                  }}
-                />
-              ))}
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: "var(--gradient-primary)" }}
-              >
-                <QrCode className="w-6 h-6 text-primary-foreground" />
+                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                  style={{ background: "var(--gradient-primary)" }}
+                >
+                  <QrCode className="w-6 h-6 text-primary-foreground" />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <p className="text-xs font-mono text-muted-foreground tracking-wider">
           {qrCode}
         </p>
 
-        <button className="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
+        <button
+          type="button"
+          onClick={downloadQr}
+          className="flex items-center gap-2 text-sm text-primary font-medium hover:underline"
+        >
           <Download className="w-4 h-4" />
           Guardar imagen
         </button>
