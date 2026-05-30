@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, Eye, EyeOff, Loader2 } from "lucide-react";
-import { loginUser, setAccessToken } from "@/lib/api";
+import {
+  isAdminRole,
+  loginUser,
+  setAccessToken,
+} from "@/lib/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,7 +31,18 @@ export default function LoginPage() {
         typeof window !== "undefined"
           ? new URLSearchParams(window.location.search).get("next")
           : null;
-      router.push(nextPath ?? "/dashboard");
+
+      if (nextPath) {
+        router.push(nextPath);
+        return;
+      }
+
+      if (isAdminRole(response.user.role)) {
+        router.push("/admin");
+        return;
+      }
+
+      router.push("/dashboard");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "No se pudo iniciar sesión"
