@@ -11,6 +11,7 @@ import {
   getAccessToken,
   getMyRecyclingRecords,
   getProfile,
+  isClientRole,
   type RecyclingRecord,
   type UserProfileResponse,
 } from "@/lib/api";
@@ -125,6 +126,8 @@ export default function ProfilePage() {
     return null;
   }
 
+  const isClient = isClientRole(profile.user.role);
+
   return (
     <div className="space-y-6 lg:max-w-3xl lg:mx-auto">
       <div
@@ -173,24 +176,26 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      <Link
-        href="/gamification/wallet"
-        className="flex items-center gap-3 rounded-xl bg-card border border-border p-4 hover:border-primary/40 transition-colors group"
-      >
-        <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center text-primary-foreground"
-          style={{ background: "var(--gradient-primary)" }}
+      {isClient ? (
+        <Link
+          href="/gamification/wallet"
+          className="flex items-center gap-3 rounded-xl bg-card border border-border p-4 hover:border-primary/40 transition-colors group"
         >
-          <Wallet className="w-5 h-5" />
-        </div>
-        <div className="flex-1">
-          <p className="font-semibold text-foreground">EcoPuntos</p>
-          <p className="text-xs text-muted-foreground">
-            {profile.wallet?.availablePoints ?? 0} puntos disponibles
-          </p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-      </Link>
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-primary-foreground"
+            style={{ background: "var(--gradient-primary)" }}
+          >
+            <Wallet className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-foreground">EcoPuntos</p>
+            <p className="text-xs text-muted-foreground">
+              {profile.wallet?.availablePoints ?? 0} puntos disponibles
+            </p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+        </Link>
+      ) : null}
 
       <button
         onClick={handleLogout}

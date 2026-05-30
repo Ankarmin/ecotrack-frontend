@@ -7,12 +7,14 @@ import {
   TreePine,
   Cloud,
   Plus,
+  QrCode,
+  ShieldCheck,
   ChevronRight,
   Flame,
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ApiError, clearAccessToken, getAccessToken, getMyRecyclingRecords, getProfile, type RecyclingRecord, type UserProfileResponse } from "@/lib/api";
+import { ApiError, clearAccessToken, getAccessToken, getMyRecyclingRecords, getProfile, isAdminRole, isValidatorRole, type RecyclingRecord, type UserProfileResponse } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
@@ -86,6 +88,8 @@ export default function DashboardPage() {
   }
 
   const firstName = profile?.user.firstNames ?? "Eco";
+  const isAdmin = isAdminRole(profile?.user.role ?? null);
+  const isValidator = isValidatorRole(profile?.user.role ?? null);
   const totalCo2 = records
     .filter((record) => record.status === "Validado")
     .reduce((sum, record) => sum + record.savedCo2, 0);
@@ -191,32 +195,38 @@ export default function DashboardPage() {
 
       {/* ── Floating Action Button (FAB) — Mobile ── */}
       <Link
-        href="/dashboard/recycle"
+        href={isAdmin ? "/admin" : isValidator ? "/collection-center" : "/dashboard/recycle"}
         className="lg:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full flex items-center justify-center text-primary-foreground shadow-xl transition-transform active:scale-95"
         style={{
           background: "var(--gradient-primary)",
           boxShadow: "var(--shadow-eco)",
         }}
-        aria-label="Nuevo reciclaje"
+        aria-label={isAdmin ? "Modulo administrador" : isValidator ? "Centro de acopio" : "Nuevo reciclaje"}
       >
-        <Plus className="w-7 h-7" />
+        {isAdmin ? <ShieldCheck className="w-7 h-7" /> : isValidator ? <QrCode className="w-7 h-7" /> : <Plus className="w-7 h-7" />}
       </Link>
 
       {/* ── Desktop CTA Card ── */}
       <Link
-        href="/dashboard/recycle"
+        href={isAdmin ? "/admin" : isValidator ? "/collection-center" : "/dashboard/recycle"}
         className="hidden lg:flex items-center gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-5 hover:bg-primary/10 transition-colors group"
       >
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center text-primary-foreground shrink-0"
           style={{ background: "var(--gradient-primary)" }}
         >
-          <Plus className="w-6 h-6" />
+          {isAdmin ? <ShieldCheck className="w-6 h-6" /> : isValidator ? <QrCode className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
         </div>
         <div className="flex-1">
-          <p className="font-bold text-foreground">Nuevo registro de reciclaje</p>
+          <p className="font-bold text-foreground">
+            {isAdmin ? "Panel de administracion" : isValidator ? "Gestionar centro de acopio" : "Nuevo registro de reciclaje"}
+          </p>
           <p className="text-sm text-muted-foreground">
-            Registra tu siguiente reciclaje y suma puntos
+            {isAdmin
+              ? "Administra centros, avances operativos y cupones del sistema"
+              : isValidator
+              ? "Revisa llegadas y confirma entregas mediante QR"
+              : "Registra tu siguiente reciclaje y suma puntos"}
           </p>
         </div>
         <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
