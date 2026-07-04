@@ -43,6 +43,7 @@ type RankingViewModel = {
   validatedRecords: number;
   pendingRecords: number;
   isCurrentUser?: boolean;
+  isCenter?: boolean;
 };
 
 const podiumIcon = [Crown, Medal, Award];
@@ -217,7 +218,7 @@ export default function GamificationPage() {
                     ) : null}
                   </div>
                   <p className="text-xs font-semibold text-foreground truncate max-w-full">
-                    {entry.title.split(" ")[0]}
+                    {entry.isCenter ? entry.title : entry.title.split(" ")[0]}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
                     {entry.totalWeightKg.toFixed(1)} kg
@@ -363,5 +364,6 @@ function mapCenterRanking(response: WeeklyCenterRankingResponse): RankingViewMod
     totalPoints: entry.totalPoints,
     validatedRecords: entry.validatedRecords,
     pendingRecords: entry.pendingRecords,
+    isCenter: true,
   }));
 }
