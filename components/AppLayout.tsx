@@ -13,7 +13,6 @@ import {
   Ticket,
   Trophy,
   User,
-  Users,
   Wallet,
 } from "lucide-react";
 
@@ -74,12 +73,6 @@ function buildNavItems(role: string | undefined): NavItem[] {
             primary: true,
             match: ["/dashboard/recycle"],
           },
-    {
-      href: "/social",
-      label: "Comunidad",
-      icon: Users,
-      match: ["/social"],
-    },
     {
       href: "/profile",
       label: "Perfil",
@@ -291,7 +284,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-card/95 backdrop-blur border-t border-border safe-area-pb">
-        <div className="grid grid-cols-5 h-16 relative">
+        <div className="grid grid-cols-4 h-16 relative">
           {navItems.map((item) => {
             const { href, label, icon: Icon, primary } = item;
             const active = isActive(pathname, item);
