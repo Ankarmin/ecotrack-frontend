@@ -73,7 +73,7 @@ export default function DashboardPage() {
       { label: "CO2 ahorrado", value: `${totalCo2.toFixed(1)} kg`, icon: Cloud, hint: "validado", color: "text-emerald-600" },
       { label: "Arboles equiv.", value: `${(totalCo2 / 13.2).toFixed(1)}`, icon: TreePine, hint: "estimados", color: "text-green-600" },
       { label: "Reciclado", value: `${totalWeight.toFixed(1)} kg`, icon: Recycle, hint: "validado", color: "text-teal-600" },
-      { label: "Registros", value: `${totalDays}`, icon: Flame, hint: "dias con actividad", color: "text-orange-500" },
+      { label: "Registros", value: `${totalDays}`, icon: Flame, hint: "días con actividad", color: "text-orange-500" },
     ];
   }, [records]);
 
@@ -219,7 +219,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex-1">
           <p className="font-bold text-foreground">
-            {isAdmin ? "Panel de administracion" : isValidator ? "Gestionar centro de acopio" : "Nuevo registro de reciclaje"}
+            {isAdmin ? "Panel de administración" : isValidator ? "Gestionar centro de acopio" : "Nuevo registro de reciclaje"}
           </p>
           <p className="text-sm text-muted-foreground">
             {isAdmin

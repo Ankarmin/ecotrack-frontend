@@ -137,7 +137,7 @@ export default function AdminCentersPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Centros de acopio</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Gestiona informacion, validadores y avance operativo por centro.
+            Gestiona información, validadores y avance operativo por centro.
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export default function AdminCentersPage() {
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Buscar centros por nombre, direccion o estado"
+          placeholder="Buscar centros por nombre, dirección o estado"
           className="w-full rounded-xl border border-border bg-card pl-10 pr-4 py-3 text-sm outline-none transition-colors focus:border-primary"
         />
       </div>

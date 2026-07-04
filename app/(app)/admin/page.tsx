@@ -155,7 +155,7 @@ export default function AdminDashboardPage() {
               <Building2 className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h2 className="font-bold text-foreground">Gestion de centros de acopio</h2>
+              <h2 className="font-bold text-foreground">Gestión de centros de acopio</h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Crea, edita, desactiva y supervisa el rendimiento de cada centro.
               </p>
@@ -173,7 +173,7 @@ export default function AdminDashboardPage() {
               <Gift className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h2 className="font-bold text-foreground">Administracion de cupones</h2>
+              <h2 className="font-bold text-foreground">Administración de cupones</h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Controla disponibilidad, vigencia, puntos y estado de cada beneficio.
               </p>

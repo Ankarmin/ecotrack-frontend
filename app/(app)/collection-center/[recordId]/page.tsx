@@ -183,7 +183,7 @@ export default function CollectionCenterRecordDetailPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-foreground">Detalle del reciclaje</h1>
-          <p className="text-sm text-muted-foreground">Seguimiento y validacion del ingreso</p>
+          <p className="text-sm text-muted-foreground">Seguimiento y validación del ingreso</p>
         </div>
       </div>
 
@@ -228,7 +228,7 @@ export default function CollectionCenterRecordDetailPage() {
 
       <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
-          <h2 className="font-bold text-foreground">Informacion del reciclaje</h2>
+          <h2 className="font-bold text-foreground">Información del reciclaje</h2>
 
           <div className="space-y-3 text-sm">
             <div className="flex items-start justify-between gap-4 border-b border-border pb-3">
@@ -239,12 +239,12 @@ export default function CollectionCenterRecordDetailPage() {
               </span>
             </div>
             <div className="flex items-start justify-between gap-4 border-b border-border pb-3">
-              <span className="text-muted-foreground">Codigo QR</span>
+              <span className="text-muted-foreground">Código QR</span>
               <button
                 type="button"
                 onClick={async () => {
                   await navigator.clipboard.writeText(record.qrCode);
-                  toast.success("Codigo QR copiado.");
+                  toast.success("Código QR copiado.");
                 }}
                 className="font-mono text-foreground text-right flex items-center gap-2 hover:text-primary transition-colors"
               >

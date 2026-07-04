@@ -78,7 +78,7 @@ export default function RecyclePage() {
           setError(
             err instanceof Error
               ? err.message
-              : "No se pudo cargar la configuracion de reciclaje"
+              : "No se pudo cargar la configuración de reciclaje"
           );
         }
       } finally {

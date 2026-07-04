@@ -72,7 +72,7 @@ export function AdminCouponForm({
         className="rounded-2xl p-6 text-primary-foreground"
         style={{ background: "var(--gradient-hero)", boxShadow: "var(--shadow-eco)" }}
       >
-        <p className="text-sm opacity-90">Administracion de cupones</p>
+        <p className="text-sm opacity-90">Administración de cupones</p>
         <h1 className="text-2xl font-bold mt-1">{title}</h1>
         <p className="text-sm opacity-90 mt-2">
           Configura disponibilidad, puntos requeridos y vigencia del beneficio.
@@ -149,7 +149,7 @@ export function AdminCouponForm({
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium text-foreground">Vigencia (dias)</span>
+              <span className="text-sm font-medium text-foreground">Vigencia (días)</span>
               <input
                 type="number"
                 min={1}
@@ -189,7 +189,7 @@ export function AdminCouponForm({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Vigencia</span>
-                <span className="font-semibold text-foreground">{form.validityDays} dias</span>
+                <span className="font-semibold text-foreground">{form.validityDays} días</span>
               </div>
             </div>
 

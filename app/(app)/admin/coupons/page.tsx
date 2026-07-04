@@ -201,7 +201,7 @@ export default function AdminCouponsPage() {
             <div className="flex items-center justify-between gap-3">
               <div className="text-xs text-muted-foreground inline-flex items-center gap-2">
                 <Ticket className="w-4 h-4" />
-                Vigencia {coupon.validityDays} dias
+                Vigencia {coupon.validityDays} días
               </div>
 
               <div className="flex items-center gap-2">

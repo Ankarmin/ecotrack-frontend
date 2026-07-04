@@ -85,7 +85,7 @@ export function CollectionCenterQrPanel({
             return;
           }
         } catch {
-          setError("No se pudo leer el QR. Intenta de nuevo o ingresa el codigo.");
+          setError("No se pudo leer el QR. Intenta de nuevo o ingresa el código.");
           setScannerEnabled(false);
           return;
         }
@@ -122,7 +122,7 @@ export function CollectionCenterQrPanel({
           });
         }
       } catch {
-        setError("No se pudo abrir la camara. Revisa permisos o usa el ingreso manual.");
+        setError("No se pudo abrir la cámara. Revisa permisos o usa el ingreso manual.");
         setScannerEnabled(false);
       }
     };
@@ -139,7 +139,7 @@ export function CollectionCenterQrPanel({
     const qrCode = manualCode.trim();
 
     if (!qrCode) {
-      setError("Escanea o ingresa un codigo QR antes de continuar.");
+      setError("Escanea o ingresa un código QR antes de continuar.");
       return;
     }
 
@@ -172,7 +172,7 @@ export function CollectionCenterQrPanel({
         <div>
           <h2 className="text-lg font-bold text-foreground">Validar reciclaje por QR</h2>
           <p className="text-sm text-muted-foreground">
-            Escanea el codigo o ingresalo manualmente para confirmar la llegada.
+            Escanea el código o ingresalo manualmente para confirmar la llegada.
           </p>
         </div>
       </div>
@@ -185,7 +185,7 @@ export function CollectionCenterQrPanel({
 
       <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-3">
-          <label className="text-sm font-medium text-foreground">Codigo QR</label>
+          <label className="text-sm font-medium text-foreground">Código QR</label>
           <div className="flex gap-2">
             <div className="relative flex-1">
               <QrCode className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
@@ -251,7 +251,7 @@ export function CollectionCenterQrPanel({
                 {!scannerReady ? (
                   <div className="absolute inset-0 flex items-center justify-center text-white/90 text-sm gap-2 bg-black/40">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Preparando camara...
+                    Preparando cámara...
                   </div>
                 ) : null}
               </div>
@@ -267,7 +267,7 @@ export function CollectionCenterQrPanel({
               <div>
                 <p className="font-semibold text-foreground">Escaneo rapido</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Usa la camara del dispositivo o valida el codigo de forma manual.
+                  Usa la cámara del dispositivo o valida el código de forma manual.
                 </p>
               </div>
             </div>

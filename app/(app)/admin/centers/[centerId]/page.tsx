@@ -306,7 +306,7 @@ export default function AdminCenterDetailPage() {
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
             <div className="flex items-center gap-3">
               <Clock3 className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Horario de atencion</h2>
+              <h2 className="text-lg font-bold text-foreground">Horario de atención</h2>
             </div>
             <div className="space-y-3">
               {center.schedules.map((schedule) => (
@@ -316,7 +316,7 @@ export default function AdminCenterDetailPage() {
                     <p className="text-sm text-muted-foreground mt-1">
                       {schedule.attends
                         ? `${schedule.openingTime?.slice(0, 5) ?? "--:--"} - ${schedule.closingTime?.slice(0, 5) ?? "--:--"}`
-                        : "Sin atencion"}
+                        : "Sin atención"}
                     </p>
                   </div>
                   <span className="text-xs rounded-full px-2.5 py-1 bg-primary/10 text-primary font-medium">
