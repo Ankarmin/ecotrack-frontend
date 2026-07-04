@@ -89,7 +89,7 @@ export default function NewAdminCenterPage() {
           if (!token) {
             clearAccessToken();
             router.replace("/auth/login?next=%2Fadmin%2Fcenters%2Fnew");
-            throw new Error("Sesion no disponible");
+            throw new Error("Sesión no disponible");
           }
 
           const validator = await createAdminValidator(token, payload);

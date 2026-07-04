@@ -61,7 +61,7 @@ export default function EditAdminCenterPage() {
           setError(
             loadError instanceof Error
               ? loadError.message
-              : "No se pudo cargar la configuracion del centro",
+              : "No se pudo cargar la configuración del centro",
           );
         }
       } finally {
@@ -109,7 +109,7 @@ export default function EditAdminCenterPage() {
           if (!token) {
             clearAccessToken();
             router.replace(`/auth/login?next=%2Fadmin%2Fcenters%2F${params.centerId}%2Fedit`);
-            throw new Error("Sesion no disponible");
+            throw new Error("Sesión no disponible");
           }
 
           const validator = await createAdminValidator(token, payload);

@@ -22,10 +22,10 @@ import { cn } from "@/lib/utils";
 const WEEKDAYS = [
   "Lunes",
   "Martes",
-  "Miercoles",
+  "Miércoles",
   "Jueves",
   "Viernes",
-  "Sabado",
+  "Sábado",
   "Domingo",
 ] as const;
 
@@ -182,6 +182,18 @@ export function AdminCenterForm({
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(validatorDraft.email.trim())) {
+      setLocalError("Ingresa un correo electrónico válido.");
+      return;
+    }
+
+    const phoneRegex = /^[0-9+\-\s()]+$/;
+    if (!phoneRegex.test(validatorDraft.phone.trim())) {
+      setLocalError("El teléfono solo puede contener números, espacios, +, - y paréntesis.");
+      return;
+    }
+
     if (validatorDraft.password.trim().length < 8) {
       setLocalError("La contraseña del validador debe tener al menos 8 caracteres.");
       return;
@@ -213,6 +225,10 @@ export function AdminCenterForm({
           ? current.validatorUserIds
           : [...current.validatorUserIds, createdValidator.id],
       }));
+    } catch (createError) {
+      if (createError instanceof Error) {
+        setLocalError(createError.message);
+      }
     } finally {
       setCreatingValidator(false);
     }
@@ -220,7 +236,7 @@ export function AdminCenterForm({
 
   const handleSubmit = async () => {
     if (!form.name.trim() || !form.address.trim()) {
-      setLocalError("Completa el nombre y la direccion del centro.");
+      setLocalError("Completa el nombre y la dirección del centro.");
       return;
     }
 
@@ -253,6 +269,10 @@ export function AdminCenterForm({
           closingTime: schedule.attends ? schedule.closingTime || null : null,
         })),
       });
+    } catch (submitError) {
+      if (submitError instanceof Error) {
+        setLocalError(submitError.message);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -264,10 +284,10 @@ export function AdminCenterForm({
         className="rounded-2xl p-6 text-primary-foreground"
         style={{ background: "var(--gradient-hero)", boxShadow: "var(--shadow-eco)" }}
       >
-        <p className="text-sm opacity-90">Administracion de centros</p>
+        <p className="text-sm opacity-90">Administración de centros</p>
         <h1 className="text-2xl font-bold mt-1">{title}</h1>
         <p className="text-sm opacity-90 mt-2">
-          Configura datos base, horarios de atencion y validadores asociados.
+          Configura datos base, horarios de atención y validadores asociados.
         </p>
       </div>
 
@@ -286,7 +306,7 @@ export function AdminCenterForm({
               </div>
               <div>
                 <h2 className="font-bold text-foreground">Datos generales</h2>
-                <p className="text-sm text-muted-foreground">Informacion visible del centro.</p>
+                <p className="text-sm text-muted-foreground">Información visible del centro.</p>
               </div>
             </div>
 
@@ -352,7 +372,7 @@ export function AdminCenterForm({
               </div>
               <div>
                 <h2 className="font-bold text-foreground">Horario semanal</h2>
-                <p className="text-sm text-muted-foreground">Define disponibilidad por dia.</p>
+                <p className="text-sm text-muted-foreground">Define día.</p>
               </div>
             </div>
 
@@ -363,7 +383,7 @@ export function AdminCenterForm({
                     <div>
                       <p className="font-semibold text-foreground">{schedule.weekday}</p>
                       <p className="text-xs text-muted-foreground">
-                        {schedule.attends ? "Disponible para atencion" : "Sin atencion"}
+                        {schedule.attends ? "Disponible para atención" : "Sin atención"}
                       </p>
                     </div>
 
