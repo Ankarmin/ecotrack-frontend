@@ -1,23 +1,9 @@
 export const ACCESS_TOKEN_KEY = "ecotrack.access-token";
 
-const API_TARGET = process.env.NEXT_PUBLIC_API_TARGET ?? "docker";
-
-const API_BASE_URL = resolveApiBaseUrl().replace(/\/$/, "");
-
-function resolveApiBaseUrl() {
-  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-    return process.env.NEXT_PUBLIC_API_BASE_URL;
-  }
-
-  if (API_TARGET === "railway") {
-    return (
-      process.env.NEXT_PUBLIC_API_BASE_URL_RAILWAY ??
-      "https://ecotrack-backend-production-2db4.up.railway.app"
-    );
-  }
-
-  return process.env.NEXT_PUBLIC_API_BASE_URL_DOCKER ?? "http://localhost:3001";
-}
+const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  "http://localhost:3001"
+).replace(/\/$/, "");
 
 export type AuthResponse = {
   accessToken: string;
