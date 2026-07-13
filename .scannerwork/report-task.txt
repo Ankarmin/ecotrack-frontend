@@ -1,0 +1,6 @@
+projectKey=eco-frontend
+serverUrl=http://localhost:9000
+serverVersion=26.5.0.122743
+dashboardUrl=http://localhost:9000/dashboard?id=eco-frontend
+ceTaskId=f47c3bff-2cfd-4233-b898-a05eb22829f4
+ceTaskUrl=http://localhost:9000/api/ce/task?id=f47c3bff-2cfd-4233-b898-a05eb22829f4
