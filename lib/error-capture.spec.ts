@@ -19,7 +19,9 @@ describe('error-capture', () => {
 
   it('captura un error via evento unhandledrejection', () => {
     const rejectionReason = 'rejection reason';
-    const event = new Event('unhandledrejection') as any;
+    const event = new Event('unhandledrejection') as Event & {
+      reason: string;
+    };
     event.reason = rejectionReason;
     window.dispatchEvent(event);
 

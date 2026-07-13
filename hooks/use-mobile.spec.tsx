@@ -2,17 +2,25 @@ import { renderHook } from '@testing-library/react';
 import { useIsMobile } from './use-mobile';
 
 describe('useIsMobile', () => {
-  let matchMediaMock: any;
+  let matchMediaMock: jest.MockedFunction<(query: string) => MediaQueryList>;
 
-  beforeEach(() => {
-    matchMediaMock = jest.fn().mockImplementation((query: string) => ({
-      matches: false,
+  function createMediaQueryList(query: string, matches: boolean): MediaQueryList {
+    return {
+      matches,
       media: query,
       onchange: null,
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
-    }));
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    } as MediaQueryList;
+  }
+
+  beforeEach(() => {
+    matchMediaMock = jest
+      .fn<MediaQueryList, [string]>()
+      .mockImplementation((query: string) => createMediaQueryList(query, false));
 
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
@@ -26,14 +34,7 @@ describe('useIsMobile', () => {
   });
 
   it('devuelve true para viewport menor a 768px', () => {
-    matchMediaMock.mockImplementation((query: string) => ({
-      matches: true,
-      media: query,
-      onchange: null,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    }));
+    matchMediaMock.mockImplementation((query: string) => createMediaQueryList(query, true));
 
     const { result } = renderHook(() => useIsMobile());
     expect(result.current).toBe(true);
